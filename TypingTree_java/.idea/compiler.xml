@@ -6,8 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="TypingTree_java" />
+        <module name="TypingTree_Java" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="TypingTree_Java" target="13" />
+    </bytecodeTargetLevel>
   </component>
 </project>
