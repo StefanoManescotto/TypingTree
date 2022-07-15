@@ -3,6 +3,7 @@ package com.example.typingtree_java;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -12,19 +13,23 @@ import org.fxmisc.richtext.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class Controller implements Initializable {
 
     @FXML
     private TextField txtField;
     @FXML
     private InlineCssTextArea txtArea;
+    @FXML
+    private Label wpmLbl;
     private int rightLetters = 0, currentWord = 0, lastLength = 0, fontSize = 20;
-    private double txtHeight = 0;
-
+    Instant start;
     public void initialize(URL location, ResourceBundle resources) {
         txtArea.setEditable(false);
-        txtArea.appendText("Moses supposes his toeses are roses, but Moses supposes erroneously. Moses he knowses his toeses aren't roses as Moses supposes his toeses to be." +
-                "Moses supposes his toeses are roses, but Moses supposes erroneously. Moses he knowses his toeses aren't roses as Moses supposes his toeses to be.");
+        txtArea.appendText("I met him down near the border. Said he wanted me to work with him on a job. Range war. But he said it'd be easy. " +
+                "All we had to worry about was a drunken sheriff. Are you sure you don't want some coffee?");
 
         txtArea.moveSelectedText(10);
         txtArea.setWrapText(true);
@@ -33,18 +38,27 @@ public class Controller implements Initializable {
 
         txtArea.setShowCaret(Caret.CaretVisibility.ON);
         txtArea.displaceCaret(0);
+
+        wpmLbl.setText("0");
     }
     @FXML
     protected void testingButton(){
         currentWord = 0;
+        txtArea.clearStyle(0);
+        txtArea.displaceCaret(0);
+        txtArea.scrollYToPixel(0);
+        txtField.setText("");
+        lastLength = 0;
+        rightLetters = 0;
     }
 
     @FXML
     protected void controlTyped(){
+        double txtHeight = 0;
         String toWrite;
+
         toWrite = txtArea.getText().substring(currentWord);
 
-        txtHeight = 0;
         for (Node n: txtArea.lookupAll(".text")) {
             if(txtHeight < n.boundsInParentProperty().get().getMaxY()){
                 txtHeight = n.boundsInParentProperty().get().getMaxY();
@@ -65,6 +79,13 @@ public class Controller implements Initializable {
             }
         }else{
             if(txtField.getText().length() > 0){
+                if(txtField.getText().length() == 1 && currentWord == 0){
+                    start = Instant.now();
+                }else{
+                    Duration timeElapsed = Duration.between(start, Instant.now());
+                    wpmLbl.setText(String.valueOf((int)(((currentWord)/(timeElapsed.toMillis()/1000d))*60)/5));
+                }
+
                 lastLength++;
 
                 if(txtField.getText().equals(toWrite.substring(0, txtField.getText().length()))){
