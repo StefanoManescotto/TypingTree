@@ -34,6 +34,11 @@
                </font>
             </TextField>
             <InlineCssTextArea fx:id="txtArea" layoutX="143.0" layoutY="9.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" />
+            <Label fx:id="wpmLbl" layoutX="14.0" layoutY="116.0" prefHeight="50.0" prefWidth="50.0" text="Label">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
    </center>
