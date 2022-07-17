@@ -24,12 +24,16 @@ public class Controller implements Initializable {
     private InlineCssTextArea txtArea;
     @FXML
     private Label wpmLbl;
-    private int rightLetters = 0, currentWord = 0, lastLength = 0, fontSize = 20;
+    private int rightLetters = 0, currentWord = 0, lastLength = 0, fontSize = 20, totalCharactersWrote = 0;
     Instant start;
     public void initialize(URL location, ResourceBundle resources) {
         txtArea.setEditable(false);
-        txtArea.appendText("I met him down near the border. Said he wanted me to work with him on a job. Range war. But he said it'd be easy. " +
-                "All we had to worry about was a drunken sheriff. Are you sure you don't want some coffee?");
+        //txtArea.appendText("I met him down near the border. Said he wanted me to work with him on a job. Range war. But he said it'd be easy. " +
+        //        "All we had to worry about was a drunken sheriff. Are you sure you don't want some coffee?");
+
+
+        txtArea.appendText(GeneratePhrase.getRandomWords(4));
+
 
         txtArea.moveSelectedText(10);
         txtArea.setWrapText(true);
@@ -50,6 +54,9 @@ public class Controller implements Initializable {
         txtField.setText("");
         lastLength = 0;
         rightLetters = 0;
+        totalCharactersWrote = 0;
+
+        //System.out.println(GeneratePhrase.getRandomWords(1));
     }
 
     @FXML
@@ -83,7 +90,7 @@ public class Controller implements Initializable {
                     start = Instant.now();
                 }else{
                     Duration timeElapsed = Duration.between(start, Instant.now());
-                    wpmLbl.setText(String.valueOf((int)(((currentWord)/(timeElapsed.toMillis()/1000d))*60)/5));
+                    wpmLbl.setText(String.valueOf((int)(((totalCharactersWrote)/(timeElapsed.toMillis()/1000d))*60)/5));
                 }
 
                 lastLength++;
@@ -100,8 +107,16 @@ public class Controller implements Initializable {
                         rightLetters = 0;
                         lastLength = 0;
                         currentWord += txtField.getText().length();
+                        totalCharactersWrote += txtField.getText().length();
 
                         txtField.setText("");
+
+                        if(currentWord/5 > 1){
+                            txtArea.appendText(GeneratePhrase.getRandomWords(1));
+                            currentWord -= (txtArea.getText().indexOf(" ") + 1);
+                            txtArea.deleteText(0, txtArea.getText().indexOf(" ") + 1);
+                            txtArea.displaceCaret(currentWord);
+                        }
                     }
                 }else{
                     Border b = new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
