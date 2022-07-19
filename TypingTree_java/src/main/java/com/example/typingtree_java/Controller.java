@@ -20,19 +20,23 @@ public class Controller implements Initializable {
 
     @FXML
     private TextField txtField;
+
     @FXML
     private InlineCssTextArea txtArea;
+
     @FXML
     private Label wpmLbl;
+
     private int rightLetters = 0, currentWord = 0, lastLength = 0, fontSize = 20, totalCharactersWrote = 0;
     Instant start;
+
     public void initialize(URL location, ResourceBundle resources) {
         txtArea.setEditable(false);
         //txtArea.appendText("I met him down near the border. Said he wanted me to work with him on a job. Range war. But he said it'd be easy. " +
         //        "All we had to worry about was a drunken sheriff. Are you sure you don't want some coffee?");
 
 
-        txtArea.appendText(GeneratePhrase.getRandomWords(4));
+        txtArea.appendText(GeneratePhrase.getRandomWords(40));
 
 
         txtArea.moveSelectedText(10);
@@ -45,6 +49,7 @@ public class Controller implements Initializable {
 
         wpmLbl.setText("0");
     }
+
     @FXML
     protected void testingButton(){
         currentWord = 0;
@@ -61,38 +66,17 @@ public class Controller implements Initializable {
 
     @FXML
     protected void controlTyped(){
-        double txtHeight = 0;
         String toWrite;
-
         toWrite = txtArea.getText().substring(currentWord);
 
-        for (Node n: txtArea.lookupAll(".text")) {
-            if(txtHeight < n.boundsInParentProperty().get().getMaxY()){
-                txtHeight = n.boundsInParentProperty().get().getMaxY();
-            }
-        }
-
-        txtArea.scrollYToPixel((txtHeight/txtArea.getParagraphLinesCount(0))
-                * txtArea.lineIndex(0, currentWord + txtField.getText().length()));
-
-
+        scrollTxtArea();
         txtArea.displaceCaret(txtField.getText().length() + currentWord);
 
         if(lastLength > txtField.getText().length()){
-            txtArea.clearStyle(currentWord + txtField.getText().length(), currentWord + lastLength);
-            lastLength = txtField.getText().length();
-            if(txtField.getText().length() < rightLetters){
-                rightLetters = txtField.getText().length();
-            }
+            deletedCharacter();
         }else{
             if(txtField.getText().length() > 0){
-                if(txtField.getText().length() == 1 && currentWord == 0){
-                    start = Instant.now();
-                }else{
-                    Duration timeElapsed = Duration.between(start, Instant.now());
-                    wpmLbl.setText(String.valueOf((int)(((totalCharactersWrote)/(timeElapsed.toMillis()/1000d))*60)/5));
-                }
-
+                updateWPM();
                 lastLength++;
 
                 if(txtField.getText().equals(toWrite.substring(0, txtField.getText().length()))){
@@ -111,12 +95,7 @@ public class Controller implements Initializable {
 
                         txtField.setText("");
 
-                        if(currentWord/5 > 1){
-                            txtArea.appendText(GeneratePhrase.getRandomWords(1));
-                            currentWord -= (txtArea.getText().indexOf(" ") + 1);
-                            txtArea.deleteText(0, txtArea.getText().indexOf(" ") + 1);
-                            txtArea.displaceCaret(currentWord);
-                        }
+                        minimumWordsCheck();
                     }
                 }else{
                     Border b = new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
@@ -125,6 +104,61 @@ public class Controller implements Initializable {
                     txtArea.setStyle(currentWord + rightLetters, currentWord + txtField.getText().length(), "-fx-stroke: red;");
                 }
             }
+        }
+    }
+
+    /**
+     * scroll the textArea to the word that is currently being written
+     */
+    private void scrollTxtArea(){
+        double txtHeight = 0;
+
+        for (Node n: txtArea.lookupAll(".text")) {
+            if(txtHeight < n.boundsInParentProperty().get().getMaxY()){
+                txtHeight = n.boundsInParentProperty().get().getMaxY();
+            }
+        }
+
+        //System.out.println(currentWord + " " + txtHeight + " " + txtArea.getParagraphLinesCount(0));
+
+        txtArea.scrollYToPixel((txtHeight/txtArea.getParagraphLinesCount(0))
+                * txtArea.lineIndex(0, currentWord + txtField.getText().length()));
+    }
+
+    /**
+     * if a character has been canceled in the textField, than reset the style of the canceled character in the textArea
+     */
+    private void deletedCharacter(){
+        txtArea.clearStyle(currentWord + txtField.getText().length(), currentWord + lastLength);
+        lastLength = txtField.getText().length();
+
+        if(txtField.getText().length() < rightLetters){
+            rightLetters = txtField.getText().length();
+        }
+    }
+
+    /**
+     * calculate the wpm and update the wpmLbl
+     */
+    private void updateWPM(){
+        if(txtField.getText().length() == 1 && currentWord == 0){
+            start = Instant.now();
+        }else{
+            Duration timeElapsed = Duration.between(start, Instant.now());
+            wpmLbl.setText(String.valueOf((int)(((totalCharactersWrote)/(timeElapsed.toMillis()/1000d))*60)/5));
+        }
+    }
+
+    /**
+     * the words remaining to write has to be >~ 40
+     */
+    private void minimumWordsCheck(){
+        if(currentWord/5 > 10){
+            currentWord -= (txtArea.getText().indexOf(" ") + 1);
+            txtArea.deleteText(0, txtArea.getText().indexOf(" ") + 1);
+            txtArea.appendText(GeneratePhrase.getRandomWords(1));
+            //txtArea.text
+            txtArea.displaceCaret(currentWord);
         }
     }
 }
