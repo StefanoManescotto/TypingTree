@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -36,7 +37,7 @@ public class Controller implements Initializable {
         //        "All we had to worry about was a drunken sheriff. Are you sure you don't want some coffee?");
 
 
-        txtArea.appendText(GeneratePhrase.getRandomWords(40));
+        txtArea.appendText(GeneratePhrase.getRandomWords(100));
 
 
         txtArea.moveSelectedText(10);
@@ -48,6 +49,7 @@ public class Controller implements Initializable {
         txtArea.displaceCaret(0);
 
         wpmLbl.setText("0");
+        //txtArea.requestFollowCaret();
     }
 
     @FXML
@@ -60,8 +62,6 @@ public class Controller implements Initializable {
         lastLength = 0;
         rightLetters = 0;
         totalCharactersWrote = 0;
-
-        //System.out.println(GeneratePhrase.getRandomWords(1));
     }
 
     @FXML
@@ -119,7 +119,7 @@ public class Controller implements Initializable {
             }
         }
 
-        //System.out.println(currentWord + " " + txtHeight + " " + txtArea.getParagraphLinesCount(0));
+        //System.out.println(currentWord + " " + txtHeight + " " + txtArea.getParagraphLinesCount(0) + " " + txtHeight/txtArea.getParagraphLinesCount(0));
 
         txtArea.scrollYToPixel((txtHeight/txtArea.getParagraphLinesCount(0))
                 * txtArea.lineIndex(0, currentWord + txtField.getText().length()));
@@ -153,12 +153,16 @@ public class Controller implements Initializable {
      * the words remaining to write has to be >~ 40
      */
     private void minimumWordsCheck(){
-        if(currentWord/5 > 10){
-            currentWord -= (txtArea.getText().indexOf(" ") + 1);
-            txtArea.deleteText(0, txtArea.getText().indexOf(" ") + 1);
-            txtArea.appendText(GeneratePhrase.getRandomWords(1));
-            //txtArea.text
+        if(txtArea.getText().length()/5 - currentWord/5 < 90){
+            System.out.println("Adding text");
+            double a = txtArea.getEstimatedScrollY();
+            //currentWord -= (txtArea.getText().indexOf(" ") + 1);
+            //txtArea.deleteText(0, txtArea.getText().indexOf(" ") + 1);
+            //txtArea.appendText(GeneratePhrase.getRandomWords(20));
+            txtArea.append(GeneratePhrase.getRandomWords(10), "-fx-font-size: " + fontSize+";");
             txtArea.displaceCaret(currentWord);
+
+            txtArea.scrollYToPixel(a);
         }
     }
 }
